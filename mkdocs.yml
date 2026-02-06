@@ -1,0 +1,146 @@
+site_name: Phronidoc Documentation
+repo_url: https://github.com/phronidoc/documentation
+
+
+nav:
+  - Home: index.md
+  - Templates:
+    - Overview: templates/index.md
+    - Engineering Templates:
+      - Overview: templates/engineering/index.md
+      - API Documentation: templates/engineering/api-documentation-template.md
+      - Architecture: templates/engineering/architecture-template.md
+      - Development Guide: templates/engineering/development-guide-template.md
+      - Troubleshooting: templates/engineering/troubleshooting-template.md
+      - Code Review: templates/engineering/code-review-template.md
+      - Release Notes: templates/engineering/release-notes-template.md
+    - Content Templates:
+      - Overview: templates/content/index.md
+      - Content Creation: templates/content/content-creation-template.md
+    - Decision-Making Templates:
+      - Overview: templates/decision-making/index.md
+      - ADR Template: templates/decision-making/adr-template.md
+    - General Templates:
+      - Overview: templates/general/index.md
+      - Meeting Notes: templates/general/meeting-notes-template.md
+      - How-To Guide: templates/general/how-to-guide-template.md
+      - FAQ: templates/general/faq-template.md
+      - Process: templates/general/process-template.md
+      - Onboarding: templates/general/onboarding-template.md
+  - Engineering:
+    - Overview: engineering/index.md
+    - Architecture: engineering/architecture/index.md
+    - API Documentation: engineering/api/index.md
+    - Development: engineering/development/
+    - Deployment: engineering/deployment/
+    - Testing: engineering/testing/
+    - Getting Started: engineering/getting-started/
+    - Contributing: engineering/contributing/
+  - Marketing: marketing/index.md
+  - Sales: sales/index.md
+  
+
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - attr_list
+  - def_list
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.keys
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - tables
+  - abbr
+  - pymdownx.snippets
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.critic
+  - pymdownx.tasklist:
+      custom_checkbox: true
+      #clickable_checkbox: true
+
+  
+extra_javascript:
+  - assets/javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+ 
+extra_css:
+    - assets/stylesheets/extra.css
+    - assets/stylesheets/admonitions.css
+
+theme:
+  name: material
+  logo: assets/images/home/uofa_cactus_computing3.png
+  custom_dir: docs/overrides
+  favicon: assets/images/favicon.ico
+  palette:
+    primary: custom
+    accent: custom
+  icon: 
+    annotation: material/star-four-points-circle
+
+  features:
+    - navigation.tracking
+    - navigation.instant
+    - navigation.path
+    - toc.integrate
+    - content.tabs.link
+    - content.tooltips
+    - content.code.copy
+    - content.code.annotate
+    - content.code.select
+    - navigation.top
+    #- announce.dismiss
+
+plugins:
+  - blog:
+      post_excerpt: optional
+  - search
+
+extra:
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX  # Update with your Google Analytics property ID
+    feedback:
+      title: Was this page informative?
+      ratings:
+        - icon: material/thumb-up
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/thumb-down
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thank you for your feedback! Have ideas to improve our site? Please [contact our support team](/support_and_training/consulting_services/). Your input helps us enhance our documentation!
+  generator: false
+  social:
+    - icon: material/email
+      link: mailto:support@phronidoc.com
+      name: Contact Support
+    - icon: material/help-box-multiple
+      link: /engineering/
+      name: Documentation
+    - icon: material/web
+      link: https://github.com/phronidoc
+      name: GitHub
+    - icon: material/github
+      link: https://github.com/phronidoc/phronidoc
+      name: Repository
+
+copyright: Phronidoc
+
