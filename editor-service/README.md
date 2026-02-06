@@ -10,6 +10,8 @@ A web-based editor for creating and editing documentation files.
 
 - ✏️ **Edit existing documents** - Modify any markdown file in the docs directory
 - ➕ **Create new documents** - Add new documentation pages
+- 📁 **Section Management** - Create and manage sections and sub-sections dynamically
+- 🔄 **Auto Navigation Updates** - Navigation in mkdocs.yml updates automatically
 - 🗑️ **Delete documents** - Remove documentation files
 - 👁️ **Live preview** - Preview markdown as you edit
 - 🔍 **Search documents** - Quickly find files
@@ -118,6 +120,46 @@ Update an existing document
 
 ### DELETE `/api/documents/{path}`
 Delete a document
+
+### GET `/api/sections`
+Get the complete section structure with sub-sections and documents
+
+### POST `/api/sections`
+Create a new top-level section
+```json
+{
+  "name": "Product",
+  "commit_message": "Optional custom commit message",
+  "push": true
+}
+```
+
+### POST `/api/sections/{section}/subsections`
+Create a sub-section within a section
+```json
+{
+  "name": "API",
+  "commit_message": "Optional custom commit message",
+  "push": true
+}
+```
+
+### DELETE `/api/sections/{path}`
+Delete a section or sub-section (e.g., `engineering` or `engineering/api`)
+
+### GET `/api/navigation`
+Get the current navigation structure from mkdocs.yml
+
+### PUT `/api/navigation`
+Manually update the navigation structure
+```json
+{
+  "navigation": [...]
+}
+```
+
+### GET `/api/navigation/validate`
+Validate that all navigation entries point to existing files
 
 ### GET `/api/git/status`
 Get git repository status

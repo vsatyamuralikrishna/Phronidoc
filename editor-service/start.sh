@@ -29,7 +29,7 @@ pip install -q -r requirements.txt
 
 # Start backend server
 echo "🌐 Starting backend server on http://localhost:8001..."
-python main.py &
+uvicorn main:app --host 0.0.0.0 --port 8001 --reload &
 BACKEND_PID=$!
 
 # Wait a moment for backend to start

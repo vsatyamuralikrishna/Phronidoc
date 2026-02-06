@@ -167,6 +167,15 @@ For issues or questions:
 - Check the documentation in `docs/`
 - Review [editor-service/README.md](./editor-service/README.md) for editor-specific help
 
+## References and Inspiration
+
+The navigation and viewing UI design is inspired by the University of Arizona HPC Documentation:
+
+- **HPC Documentation Site**: [https://hpcdocs.hpc.arizona.edu/](https://hpcdocs.hpc.arizona.edu/)
+- **HPC Documentation Repository**: [https://github.com/UA-ResearchComputing-HPC/hpc-documentation](https://github.com/UA-ResearchComputing-HPC/hpc-documentation)
+
+The clean, hierarchical navigation structure and document viewing experience from the HPC docs site served as inspiration for the Phronidoc editor interface.
+
 ---
 
 **Phronidoc** - Transforming team chaos into structural clarity.

@@ -5,7 +5,7 @@ Git utilities for automatic commits and pushes
 import subprocess
 import os
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 import logging
 
 logger = logging.getLogger(__name__)
@@ -116,9 +116,14 @@ def git_commit(message: str, author_name: Optional[str] = None, author_email: Op
         return True, f"Committed: {message}"
     else:
         # Check if there's nothing to commit
-        if "nothing to commit" in stderr.lower() or "nothing to commit" in stdout.lower():
-            return True, "No changes to commit"
-        return False, f"Failed to commit: {stderr}"
+        error_text = (stderr + " " + stdout).lower()
+        if "nothing to commit" in error_text or "no changes added to commit" in error_text:
+            return True, "No changes to commit (already committed or no changes)"
+        # Check if file is already committed
+        if "nothing added to commit" in error_text:
+            return True, "File already committed"
+        logger.error(f"Git commit failed. STDOUT: {stdout}, STDERR: {stderr}")
+        return False, f"Failed to commit: {stderr or stdout}"
 
 
 def git_push(remote: str = "origin", branch: str = "main") -> Tuple[bool, str]:
@@ -226,3 +231,102 @@ def commit_and_push_file(
         return True, f"{commit_msg_result}. {push_msg}"
     
     return True, commit_msg_result
+
+
+def commit_multiple_files(
+    files: List[Path],
+    message: str,
+    push: bool = True
+) -> Tuple[bool, str]:
+    """
+    Stage, commit, and optionally push multiple files
+    
+    Args:
+        files: List of file paths to commit
+        message: Commit message
+        push: Whether to push to remote (default: True)
+    
+    Returns:
+        Tuple of (success: bool, message: str)
+    """
+    if not is_git_repo():
+        return False, "Not a git repository"
+    
+    # Stage all files
+    staged_files = []
+    for file_path in files:
+        if file_path.exists():
+            add_success, add_msg = git_add(file_path)
+            if add_success:
+                staged_files.append(file_path)
+            else:
+                # Log warning but continue - might already be staged
+                logger.warning(f"Failed to stage {file_path}: {add_msg}")
+                # Try to add anyway - might work
+                try:
+                    rel_path = file_path.relative_to(REPO_ROOT)
+                    success, _, _ = run_git_command(['git', 'add', str(rel_path)], cwd=REPO_ROOT)
+                    if success:
+                        staged_files.append(file_path)
+                except:
+                    pass
+        else:
+            # File might have been deleted, use git add -A to stage deletions
+            try:
+                success, _, stderr = run_git_command(['git', 'add', '-A'], cwd=REPO_ROOT)
+                if success:
+                    staged_files.append(file_path)
+            except Exception as e:
+                logger.warning(f"Error staging deleted file {file_path}: {e}")
+    
+    # If no files were staged, try git add -A to catch any changes
+    if not staged_files:
+        success, _, stderr = run_git_command(['git', 'add', '-A'], cwd=REPO_ROOT)
+        if not success:
+            return False, f"No files to commit. Error: {stderr}"
+    
+    # Commit
+    commit_success, commit_msg_result = git_commit(message)
+    if not commit_success:
+        return False, commit_msg_result
+    
+    # Push if requested
+    if push:
+        push_success, push_msg = git_push()
+        if not push_success:
+            return True, f"{commit_msg_result}. Push failed: {push_msg}"
+        return True, f"{commit_msg_result}. {push_msg}"
+    
+    return True, commit_msg_result
+
+
+def stage_directory(path: Path) -> Tuple[bool, str]:
+    """
+    Stage an entire directory and its contents
+    
+    Args:
+        path: Path to directory
+    
+    Returns:
+        Tuple of (success: bool, message: str)
+    """
+    if not is_git_repo():
+        return False, "Not a git repository"
+    
+    try:
+        rel_path = path.relative_to(REPO_ROOT)
+        success, stdout, stderr = run_git_command(['git', 'add', str(rel_path)], cwd=REPO_ROOT)
+        
+        if success:
+            return True, f"Staged directory {rel_path}"
+        else:
+            return False, f"Failed to stage directory: {stderr}"
+    except ValueError:
+        # Path outside repo, use absolute
+        success, stdout, stderr = run_git_command(['git', 'add', str(path)], cwd=REPO_ROOT)
+        if success:
+            return True, f"Staged directory {path}"
+        else:
+            return False, f"Failed to stage directory: {stderr}"
+    except Exception as e:
+        return False, f"Error staging directory: {str(e)}"

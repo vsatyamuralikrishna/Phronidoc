@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/markdown/markdown.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
@@ -15,80 +17,174 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📝 Phronidoc</h1>
-            <p style="margin: 0; font-size: 0.9rem; color: #ccc;">Transforming team chaos into structural clarity</p>
-            <div class="header-actions">
-                <button id="newDocBtn" class="btn btn-primary">+ New Document</button>
-                <button id="refreshBtn" class="btn btn-secondary">🔄 Refresh</button>
+    <div class="app-container">
+        <!-- Top Navigation Bar -->
+        <nav class="top-nav">
+            <div class="nav-brand">
+                <span class="nav-logo">📝</span>
+                <div class="nav-brand-text">
+                    <h1>Phronidoc</h1>
+                    <p>Documentation Editor</p>
+                </div>
             </div>
-        </header>
+            <div class="nav-actions">
+                <button id="newSectionBtn" class="nav-btn nav-btn-primary" title="Create new section">
+                    <span class="nav-btn-icon">+</span>
+                    <span class="nav-btn-text">Section</span>
+                </button>
+                <button id="newSubsectionBtn" class="nav-btn nav-btn-primary" title="Create new sub-section">
+                    <span class="nav-btn-icon">+</span>
+                    <span class="nav-btn-text">Sub-section</span>
+                </button>
+                <button id="newDocBtn" class="nav-btn nav-btn-primary" title="Create new document">
+                    <span class="nav-btn-icon">+</span>
+                    <span class="nav-btn-text">Document</span>
+                </button>
+                <button id="refreshBtn" class="nav-btn nav-btn-secondary" title="Refresh">
+                    <span class="nav-btn-icon">🔄</span>
+                </button>
+            </div>
+        </nav>
 
-        <div class="main-content">
-            <aside class="sidebar">
-                <div class="sidebar-header">
-                    <h2>Documents</h2>
-                    <input type="text" id="searchInput" placeholder="Search documents..." class="search-input">
+        <div class="main-layout">
+            <!-- Left Sidebar Navigation (HPC Docs Style) -->
+            <aside class="nav-sidebar">
+                <div class="nav-sidebar-header">
+                    <input type="text" id="navSearchInput" placeholder="Search..." class="nav-search">
                 </div>
-                <div id="documentList" class="document-list">
-                    <div class="loading">Loading documents...</div>
-                </div>
+                <nav class="nav-tree" id="navTree">
+                    <div class="loading">Loading navigation...</div>
+                </nav>
             </aside>
 
-            <main class="editor-area">
-                <div id="emptyState" class="empty-state">
-                    <p>Select a document from the sidebar to edit, or create a new one.</p>
+            <!-- Main Content Area -->
+            <main class="content-area">
+                <!-- Empty State -->
+                <div id="emptyState" class="content-empty">
+                    <div class="empty-content">
+                        <h2>Welcome to Phronidoc</h2>
+                        <p>Select a document from the navigation to view or edit, or create a new one.</p>
+                        <div class="empty-actions">
+                            <button id="emptyNewSectionBtn" class="btn btn-primary">+ New Section</button>
+                            <button id="emptyNewDocBtn" class="btn btn-primary">+ New Document</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="editorContainer" class="editor-container" style="display: none;">
-                    <div class="editor-header">
-                        <div class="file-info">
-                            <span id="currentFilePath" class="file-path"></span>
-                            <span id="lastModified" class="last-modified"></span>
+                <!-- Document View/Edit Container -->
+                <div id="documentContainer" class="document-container" style="display: none;">
+                    <!-- Document Header -->
+                    <header class="doc-header">
+                        <div class="doc-header-left">
+                            <h1 id="docTitle" class="doc-title"></h1>
+                            <div class="doc-meta">
+                                <span id="docPath" class="doc-path"></span>
+                                <span id="docModified" class="doc-modified"></span>
+                            </div>
                         </div>
-                        <div class="editor-actions">
-                            <button id="saveBtn" class="btn btn-primary">💾 Save</button>
-                            <button id="previewBtn" class="btn btn-secondary">👁️ Preview</button>
-                            <button id="deleteBtn" class="btn btn-danger">🗑️ Delete</button>
+                        <div class="doc-header-actions">
+                            <button id="editToggleBtn" class="btn btn-secondary">✏️ Edit</button>
+                            <button id="saveBtn" class="btn btn-primary" style="display: none;">💾 Save</button>
+                            <button id="deleteBtn" class="btn btn-danger" style="display: none;">🗑️ Delete</button>
+                        </div>
+                    </header>
+
+                    <!-- Document Content -->
+                    <div class="doc-content-wrapper">
+                        <!-- Preview View (Default) -->
+                        <article id="previewView" class="doc-preview">
+                            <div id="previewContent" class="markdown-body"></div>
+                        </article>
+
+                        <!-- Edit View -->
+                        <div id="editView" class="doc-editor" style="display: none;">
+                            <div id="editorContainer" class="editor-wrapper">
+                                <textarea id="markdownEditor"></textarea>
+                            </div>
                         </div>
                     </div>
-                    <div class="editor-tabs">
-                        <button class="tab active" data-tab="edit">Edit</button>
-                        <button class="tab" data-tab="preview">Preview</button>
-                    </div>
-                    <div id="editorPane" class="editor-pane">
-                        <textarea id="markdownEditor"></textarea>
-                    </div>
-                    <div id="previewPane" class="preview-pane" style="display: none;"></div>
                 </div>
             </main>
         </div>
+    </div>
 
-        <!-- New Document Modal -->
-        <div id="newDocModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Create New Document</h2>
-                    <button class="close-btn" id="closeModal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <label for="newDocPath">Document Path:</label>
-                    <input type="text" id="newDocPath" placeholder="e.g., engineering/new-page.md" class="form-input">
-                    <small>Path relative to docs/ directory. Use forward slashes.</small>
-                    
-                    <label for="newDocTitle">Title (optional):</label>
-                    <input type="text" id="newDocTitle" placeholder="Document Title" class="form-input">
-                    
-                    <label for="newDocContent">Initial Content:</label>
-                    <textarea id="newDocContent" class="form-textarea" rows="10" placeholder="# Document Title
+    <!-- Modals -->
+    <!-- New Section Modal -->
+    <div id="newSectionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Section</h2>
+                <button class="close-btn" id="closeSectionModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="sectionName">Section Name:</label>
+                <input type="text" id="sectionName" placeholder="e.g., Product, Support, etc." class="form-input">
+                <small>This will create a new top-level section in the documentation.</small>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelSectionBtn" class="btn btn-secondary">Cancel</button>
+                <button id="createSectionBtn" class="btn btn-primary">Create Section</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Sub-section Modal -->
+    <div id="newSubsectionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Sub-section</h2>
+                <button class="close-btn" id="closeSubsectionModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="parentSection">Parent Section:</label>
+                <select id="parentSection" class="form-input">
+                    <option value="">Select a section...</option>
+                </select>
+                
+                <label for="subsectionName">Sub-section Name:</label>
+                <input type="text" id="subsectionName" placeholder="e.g., API, Guides, etc." class="form-input">
+                <small>This will create a sub-section within the selected parent section.</small>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelSubsectionBtn" class="btn btn-secondary">Cancel</button>
+                <button id="createSubsectionBtn" class="btn btn-primary">Create Sub-section</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Document Modal -->
+    <div id="newDocModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Document</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="docSection">Section:</label>
+                <select id="docSection" class="form-input">
+                    <option value="">Select a section...</option>
+                </select>
+                
+                <label for="docSubsection">Sub-section (optional):</label>
+                <select id="docSubsection" class="form-input">
+                    <option value="">None (root of section)</option>
+                </select>
+                
+                <label for="newDocPath">Document Path (auto-generated):</label>
+                <input type="text" id="newDocPath" placeholder="Will be generated based on selection" class="form-input" readonly>
+                <small>Path is auto-generated. You can edit it manually if needed.</small>
+                
+                <label for="newDocTitle">Title:</label>
+                <input type="text" id="newDocTitle" placeholder="Document Title" class="form-input">
+                
+                <label for="newDocContent">Initial Content:</label>
+                <textarea id="newDocContent" class="form-textarea" rows="10" placeholder="# Document Title
 
 Write your content here..."></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button id="cancelBtn" class="btn btn-secondary">Cancel</button>
-                    <button id="createBtn" class="btn btn-primary">Create</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                <button id="createBtn" class="btn btn-primary">Create</button>
             </div>
         </div>
     </div>

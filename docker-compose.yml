@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  phronidoc-editor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: phronidoc-editor
+    ports:
+      - "8080:80"      # Frontend
+      - "8001:8001"    # Backend API
+    volumes:
+      - ./docs:/app/docs:rw
+      - ./mkdocs.yml:/app/mkdocs.yml:rw
+      - ./.git:/app/.git:ro
+    environment:
+      - DOCS_DIR=/app/docs
+      - MKDOCS_CONFIG_PATH=/app/mkdocs.yml
+      - GIT_REPO_PATH=/app
+    restart: unless-stopped
+    networks:
+      - phronidoc-network
+
+  # Optional: MkDocs documentation site
+  phronidoc-docs:
+    image: python:3.11-slim
+    container_name: phronidoc-docs
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app:ro
+      - ./site:/app/site:rw
+    command: >
+      sh -c "
+        pip install -q -r requirements.txt &&
+        mkdocs serve --dev-addr=0.0.0.0:8000
+      "
+    restart: unless-stopped
+    networks:
+      - phronidoc-network
+    profiles:
+      - docs
+
+networks:
+  phronidoc-network:
+    driver: bridge
